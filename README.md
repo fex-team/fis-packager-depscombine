@@ -6,10 +6,10 @@ fis-packager-depsCombine
 1. 安装此插件
 
     ```bash
-    npm install fis-packager-depsCombine -g
+    npm install fis-packager-depscombine -g
     ```
 2. 启用此插件
 
     ```javascript
-    fis.config.set('modules.packager', 'depsCombine');
+    fis.config.set('modules.packager', 'depscombine');
     ```
