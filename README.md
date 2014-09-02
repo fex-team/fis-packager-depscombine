@@ -1,4 +1,4 @@
-fis-packager-depsCombine
+fis-packager-depscombine
 ====================================
 
 另一种打包方案，在 pack 中命中的文件，其依赖也会自动命中。
