@@ -24,7 +24,7 @@ module.exports = function(ret, conf, settings, opt){
             pkgs.push({
                 id: pid,
                 regs: patterns,
-                pkgs: [],
+                pkgs: new Array(patterns.length),
                 subpath: subpath
             });
         } else {
@@ -38,7 +38,7 @@ module.exports = function(ret, conf, settings, opt){
         for (var i = 0, len = regs.length; i < len; i++) {
             var reg = regs[i];
             if (reg && fis.util.filter(subpath, reg)) {
-                return true;
+                return i;
             }
         }
         return false;
@@ -51,7 +51,7 @@ module.exports = function(ret, conf, settings, opt){
         if (packed[subpath] || file.isImage()) return;
         fis.util.map(pkgs, function(_, pkg) {
             var index = hit(file.subpath, pkg.regs);
-            if (index) {
+            if (index!==false) {
                 packed[subpath] = true;
                 file.requires.forEach(function(id) {
                     var dep = ret.ids[id];
@@ -59,7 +59,12 @@ module.exports = function(ret, conf, settings, opt){
                         pack(dep.subpath, dep);
                     }
                 });
-                pkg.pkgs.push(file)
+
+                if (!pkg.pkgs[index]) {
+                    pkg.pkgs[index] = [];
+                }
+
+                pkg.pkgs[index].push(file)
                 //stop to pack
                 return true;
             }
@@ -96,8 +101,14 @@ module.exports = function(ret, conf, settings, opt){
 
     // add deps and flat them.
     fis.util.map(pkgs, function(_, pkg) {
-        var files = pkg.pkgs;
+        var files = [];
         var newset = [];
+
+        pkg.pkgs.forEach(function(item) {
+            if (item) {
+                push.apply(files, item);
+            }
+        });
 
         files.forEach(function(file) {
             push.apply(newset, flatDeps(file));
@@ -139,37 +150,42 @@ module.exports = function(ret, conf, settings, opt){
 
             if (!mixedSet.length) {
                 continue;
-            }
-
-            if (mixedSet.length === pkg.flated.length) {
-                mixedSet.forEach(function(v) {
-                    var idx;
-                    ~(idx = item.flated.indexOf(v)) && item.flated.splice(idx, 1);
-                });
-            } else if (mixedSet.length === item.flated.length) {
-                mixedSet.forEach(function(v) {
-                    var idx;
-                    ~(idx = pkg.flated.indexOf(v)) && pkg.flated.splice(idx, 1);
-                });
             } else {
-                var pid = (ns ? ns + connector : '') + 'p' + index++;
-                var inserted = {
-                    id: pid,
-                    index: index -1,
-                    flated: mixedSet.concat(),
-                    generated: true
-                }
-
                 mixedSet.forEach(function(v) {
                     var idx;
                     ~(idx = pkg.flated.indexOf(v)) && pkg.flated.splice(idx, 1);
-                    ~(idx = item.flated.indexOf(v)) && item.flated.splice(idx, 1);
                 });
-
-                i++;
-                pkgsFomatted.splice(i, 0, inserted);
-                len++;
             }
+
+            // if (mixedSet.length === pkg.flated.length) {
+            //     mixedSet.forEach(function(v) {
+            //         var idx;
+            //         ~(idx = item.flated.indexOf(v)) && item.flated.splice(idx, 1);
+            //     });
+            // } else if (mixedSet.length === item.flated.length) {
+            //     mixedSet.forEach(function(v) {
+            //         var idx;
+            //         ~(idx = pkg.flated.indexOf(v)) && pkg.flated.splice(idx, 1);
+            //     });
+            // } else {
+            //     var pid = (ns ? ns + connector : '') + 'p' + index++;
+            //     var inserted = {
+            //         id: pid,
+            //         index: index -1,
+            //         flated: mixedSet.concat(),
+            //         generated: true
+            //     }
+
+            //     mixedSet.forEach(function(v) {
+            //         var idx;
+            //         ~(idx = pkg.flated.indexOf(v)) && pkg.flated.splice(idx, 1);
+            //         ~(idx = item.flated.indexOf(v)) && item.flated.splice(idx, 1);
+            //     });
+
+            //     i++;
+            //     pkgsFomatted.splice(i, 0, inserted);
+            //     len++;
+            // }
         }
 
         pkgsFomatted.push(pkg);
