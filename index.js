@@ -78,6 +78,7 @@ module.exports = function(ret, conf, settings, opt){
 
 
     var push = [].push;
+    var unshift = [].unshift;
     var cachedDeps = {};
     var flatDeps = function(file) {
         if (cachedDeps[file.id]) {
@@ -93,7 +94,7 @@ module.exports = function(ret, conf, settings, opt){
                 return;
             }
 
-            push.apply(deps, flatDeps(dep));
+            unshift.apply(deps, flatDeps(dep));
         });
 
         return deps;
