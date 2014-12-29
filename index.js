@@ -55,7 +55,7 @@ module.exports = function(ret, conf, settings, opt){
                 packed[subpath] = true;
                 file.requires.forEach(function(id) {
                     var dep = ret.ids[id];
-                    if (dep && dep.rExt === file.rExt) {
+                    if (dep) {
                         pack(dep.subpath, dep);
                     }
                 });
@@ -64,9 +64,7 @@ module.exports = function(ret, conf, settings, opt){
                     pkg.pkgs[index] = [];
                 }
 
-                pkg.pkgs[index].push(file)
-                //stop to pack
-                return true;
+                pkg.pkgs[index].push(file);
             }
         });
     };
@@ -90,7 +88,7 @@ module.exports = function(ret, conf, settings, opt){
         file.requires.forEach(function(id) {
             var dep = ret.ids[id];
 
-            if (!dep || dep.rExt !== file.rExt) {
+            if (!dep) {
                 return;
             }
 
@@ -104,6 +102,7 @@ module.exports = function(ret, conf, settings, opt){
     fis.util.map(pkgs, function(_, pkg) {
         var files = [];
         var newset = [];
+        var rExt = /\.(.*)$/.test(pkg.subpath) ? RegExp.$1 : '';
 
         pkg.pkgs.forEach(function(item) {
             if (item) {
@@ -115,9 +114,9 @@ module.exports = function(ret, conf, settings, opt){
             push.apply(newset, flatDeps(file));
         });
 
-        // 去重
+        // 去重并后缀不一致的去掉。
         newset = newset.filter(function(item, idx, self) {
-            return self.indexOf(item) === idx;
+            return self.indexOf(item) === idx && item.substring(item.length - rExt.length, item.length) === rExt;
         });
 
         pkg.flated = newset;
@@ -223,14 +222,13 @@ module.exports = function(ret, conf, settings, opt){
         delete pkg.flated;
     });
 
-    // console.log(pkgMap);
-
-
     //pack
     fis.util.map(pkgMap, function(pid, pkg){
         //collect contents
         var content = '', has = [], index = 0,
             requires = [], requireMap = {};
+
+        var pkgFile = pkg.file;
 
         pkg.pkgs.forEach(function(file){
             var id = file.getId();
