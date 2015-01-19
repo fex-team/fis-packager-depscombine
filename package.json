@@ -1,6 +1,6 @@
 {
   "name": "fis-packager-depscombine",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "auto pack fis",
   "main": "index.js",
   "scripts": {
