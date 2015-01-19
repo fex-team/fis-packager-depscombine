@@ -116,7 +116,9 @@ module.exports = function(ret, conf, settings, opt){
 
         // 去重并后缀不一致的去掉。
         newset = newset.filter(function(item, idx, self) {
-            return self.indexOf(item) === idx && item.substring(item.length - rExt.length, item.length) === rExt;
+            var file = fis.file(root, item);
+
+            return self.indexOf(item) === idx && file.rExt === rExt;
         });
 
         pkg.flated = newset;
