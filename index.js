@@ -102,7 +102,7 @@ module.exports = function(ret, conf, settings, opt){
     fis.util.map(pkgs, function(_, pkg) {
         var files = [];
         var newset = [];
-        var rExt = /\.(.*)$/.test(pkg.subpath) ? RegExp.$1 : '';
+        var rExt = /(\..*)$/.test(pkg.subpath) ? RegExp.$1 : '';
 
         pkg.pkgs.forEach(function(item) {
             if (item) {
