@@ -118,7 +118,7 @@ module.exports = function(ret, conf, settings, opt){
         newset = newset.filter(function(item, idx, self) {
             var file = fis.file(root, item);
 
-            return self.indexOf(item) === idx || file.rExt !== rExt;
+            return self.indexOf(item) === idx && file.rExt === rExt;
         });
 
         pkg.flated = newset;
