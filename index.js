@@ -77,25 +77,34 @@ module.exports = function(ret, conf, settings, opt){
 
     var push = [].push;
     var unshift = [].unshift;
-    var cachedDeps = {};
     var flatDeps = function(file) {
-        if (cachedDeps[file.id]) {
-            return cachedDeps[file.id];
-        }
+        var deps = [file];
+        var collection = [];
+        var dep;
 
-        var deps = cachedDeps[file.id] = [file.id];
+        while (deps.length) {
+            dep = deps.shift();
 
-        file.requires.forEach(function(id) {
-            var dep = ret.ids[id];
-
-            if (!dep) {
-                return;
+            if (!dep || ~collection.indexOf(dep.id)) {
+                continue;
             }
 
-            unshift.apply(deps, flatDeps(dep));
-        });
+            collection.unshift(dep.id);
 
-        return deps;
+            if (dep.requires && dep.requires.length) {
+                dep.requires.forEach(function(id) {
+                    var o =  ret.ids[id];
+
+                    if (!o) {
+                        return;
+                    }
+
+                    deps.unshift(o);
+                });
+            }
+        }
+
+        return collection;
     }
 
     // add deps and flat them.
